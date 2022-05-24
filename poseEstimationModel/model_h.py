@@ -25,17 +25,19 @@ columns = ["27x", "27y", "27z", "28x", "28y", "28z", "29x", "29y", "29z",
     "30x", "30y", "30z", "31x", "31y", "31z", "32x", "32y", "32z"]
 data = []
 
-frame_count = 0
 # iterate through frames of video
 while True:
-    print(frame_count)
+    print(len(data))
     success, img = cap.read()   # img is one frame/image
-
+    key = cv2.waitKey(1)   # cancel with ESC key
+    if not success or key == 27:
+        break
+    
     # draw pose-landmarks
     imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = pose.process(imgRGB)
     if results.pose_landmarks:
-        mpDraw.draw_landmarks(img, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
+        #mpDraw.draw_landmarks(img, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
 
         row = ['' for i in range(18)] 
         # print id and coordinates of landmarks
@@ -56,23 +58,19 @@ while True:
             
         data.append(row)
 
-    # display fps
-    cTime = time.time()
-    fps = 1/(cTime-pTime)
-    pTime = cTime
-    cv2.putText(img, str(int(fps)), (50,50), cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0), 3)
+        
+        """ # display fps
+        cTime = time.time()
+        fps = 1/(cTime-pTime)
+        pTime = cTime
+        cv2.putText(img, str(int(fps)), (50,50), cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0), 3)
 
-    # display frame/image
-    #resized_img = cv2.resize(img, (675, 1200))   
-    resized_img = cv2.resize(img, (475, 900))   
-    cv2.imshow("Image", resized_img)
+        # display frame/image
+        cv2.rectangle(img, (0, 0), (1200, 1200), (0, 0, 0), -1)
+        #resized_img = cv2.resize(img, (675, 1200))   
+        resized_img = cv2.resize(img, (475, 900))   
+        cv2.imshow("Image", resized_img) """
 
-    key = cv2.waitKey(1)
-    # cancel with ESC key
-    if key == 27 or frame_count==20:
-        break
-    frame_count+=1
-            
-df = pd.DataFrame(data, index=range(frame_count+1), columns=[columns])
-print(df)
-df.to_csv('Runner1-Joggen.csv')
+df = pd.DataFrame(data, index=range(len(data)), columns=[columns])
+print(df)   
+df.to_csv('Runner1-Joggen-incomplete.csv')
