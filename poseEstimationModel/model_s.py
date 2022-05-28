@@ -1,14 +1,10 @@
-from operator import indexOf
 import cv2
 import mediapipe as mp
 import time
-import tkinter as tk
-from tkinter import N, filedialog
-import csv
 import pandas as pd
 import os
 
-dir = "C:/Users/timml/Sports-Analytics/daten/seite"
+dir = "../../daten/seite"
 
 def write_keypoints(filepath, filename):
     mpPose = mp.solutions.pose
@@ -18,7 +14,8 @@ def write_keypoints(filepath, filename):
 
     cap = cv2.VideoCapture(filepath)
 
-    columns = ["27x", "27y", "27z", "28x", "28y", "28z", "29x", "29y", "29z", 
+    columns = ["23x", "23y", "23z", "24x", "24y", "24z", "25x", "25y", "25z", 
+        "26x", "26y", "26z","27x", "27y", "27z", "28x", "28y", "28z", "29x", "29y", "29z", 
         "30x", "30y", "30z", "31x", "31y", "31z", "32x", "32y", "32z"]
     df = pd.read_csv('incomplete-' + str(filename[:-4]) + '.csv', index_col=0)
     print(df)
@@ -36,14 +33,13 @@ def write_keypoints(filepath, filename):
             print("completed with cut")
             print(len(df.index))
             break
-        key = cv2.waitKey(1)   # cancel with ESC key
-        if key == 27:
-            print("canceled")
-            break
 
         # draw pose-landmarks
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         results = pose.process(imgRGB)
+
+        cv2.rectangle(img, (0, 0), (1200, 1200), (0, 0, 0), -1)
+
         if results.pose_landmarks:
             mpDraw.draw_landmarks(img, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
 
@@ -51,7 +47,7 @@ def write_keypoints(filepath, filename):
             # print id and coordinates of landmarks
             for id, landmark in enumerate(results.pose_landmarks.landmark):
                 # see Blaze Pose Keypoint Topology for meaning of id, e.g. id=32 is "left foot index"
-                relevant_ids = [27,28,29,30,31,32]
+                relevant_ids = [23,24,25,26,27,28,29,30,31,32]
                 if id in relevant_ids:
                     print("ID: ", id)
                     print("X: ", landmark.x)
@@ -72,19 +68,19 @@ def write_keypoints(filepath, filename):
 
             df.loc[frame_count] = row
 
-        # display fps
-        cTime = time.time()
-        fps = 1/(cTime-pTime)
-        pTime = cTime
-        cv2.putText(img, str(int(fps)), (50,50), cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0), 3)
+            # display fps
+            cTime = time.time()
+            fps = 1/(cTime-pTime)
+            pTime = cTime
+            cv2.putText(img, str(int(fps)), (50,50), cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0), 3)
 
-        # display frame/image
-        cv2.rectangle(img, (0, 0), (1200, 300), (0, 0, 0), -1)
-        #resized_img = cv2.resize(img, (675, 1200))   
-        #resized_img = cv2.resize(img, (475, 900))   
-        cv2.imshow("Image", img)
+            # display frame/image
+            #resized_img = cv2.resize(img, (675, 1200))   
+            resized_img = cv2.resize(img, (475, 900))   
+            cv2.imshow("Image", resized_img)
+            cv2.waitKey(1)
 
-        frame_count+=1
+            frame_count+=1
                 
     print(df)
     df.to_csv(str(filename[:-4])+ ".csv")
