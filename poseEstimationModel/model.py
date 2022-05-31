@@ -19,8 +19,8 @@ import pandas as pd
 import os
 
 #------------------------------------- variables ---------------------------------------
-dir_hinten = "../../data/test/hinten"      #  TODO CHANGE PATHS
-dir_seite = "../../data/test/seite"
+dir_hinten = "../../data/hinten"
+dir_seite = "../../data/seite"
 columns = ["23x", "23y", "23z", "24x", "24y", "24z", "25x", "25y", "25z", 
     "26x", "26y", "26z","27x", "27y", "27z", "28x", "28y", "28z", "29x", "29y", "29z", 
     "30x", "30y", "30z", "31x", "31y", "31z", "32x", "32y", "32z"]
