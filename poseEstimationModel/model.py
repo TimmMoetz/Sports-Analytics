@@ -32,13 +32,6 @@ mpDraw = mp.solutions.drawing_utils
 #--------------------------------------- functions --------------------------------
 
 def display_img(img):
-    # display fps
-    pTime = 0
-    cTime = time.time()
-    fps = 1/(cTime-pTime)
-    pTime = cTime
-    cv2.putText(img, str(int(fps)), (50,50), cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0), 3)
-
     # display frame/image
     #resized_img = cv2.resize(img, (675, 1200))   # big screen 
     resized_img = cv2.resize(img, (475, 900))    # small screen
@@ -59,7 +52,7 @@ def write_keypoints_hinten(filepath, filename):
         # calculate and draw pose-landmarks
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         results = pose.process(imgRGB)
-        cv2.rectangle(img, (0, 0), (1200, 1200), (0, 0, 0), -1)   # anonymization
+        cv2.rectangle(img, (0, 0), (1200, 900), (0, 0, 0), -1)   # anonymization
         if results.pose_landmarks:
             mpDraw.draw_landmarks(img, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
 
@@ -110,7 +103,7 @@ def write_keypoints_seite(filepath, filename):
         # calculate and draw pose-landmarks
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         results = pose.process(imgRGB)
-        cv2.rectangle(img, (0, 0), (1200, 1200), (0, 0, 0), -1)   # anonymization
+        cv2.rectangle(img, (0, 0), (1200, 900), (0, 0, 0), -1)   # anonymization
         if results.pose_landmarks:
             mpDraw.draw_landmarks(img, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
 
