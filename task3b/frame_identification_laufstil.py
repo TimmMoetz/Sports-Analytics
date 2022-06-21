@@ -6,17 +6,13 @@ How to use this model:
 
 import cv2
 import mediapipe as mp
-import time
 import pandas as pd
 import os
-import math
-
 
 #------------------------------------- variables ---------------------------------------
-dir_hinten = "../../data/hinten"
 dir_seite = "../../data/seite_todo"
 dir_csv = "../../data/csv"
-columns = ["frame_at_time_of_tread"]
+dir_tread_frames = "../../data/tread_frames_laufstil"
 
 mpPose = mp.solutions.pose
 pose = mpPose.Pose()
@@ -36,12 +32,18 @@ def identify_tread(filepath, filename):
 
     csv_filepath = os.path.join(dir_csv, str(filename[:-4]) + '.csv')
     df = pd.read_csv(csv_filepath, index_col=0)
-    # filter for the top 100 highest values of '32z'
-    canidat_df = df.nlargest(n=100, columns=['32z'], keep='all')
-    canidat_frames_at_time_of_tread = canidat_df.index.array
-    print(canidat_frames_at_time_of_tread)
 
-    data = []
+    # filter for the top 100 highest values of '32z' (left foot)
+    canidat_df_left = df.nlargest(n=100, columns=['32z'], keep='all')
+    canidat_frames_at_time_of_tread_left = canidat_df_left.index.array
+    print(canidat_frames_at_time_of_tread_left)
+
+    # filter for the top 100 highest values of '31z' (right foot)
+    canidat_df_right = df.nlargest(n=100, columns=['31z'], keep='all')
+    canidat_frames_at_time_of_tread_right = canidat_df_right.index.array
+    print(canidat_frames_at_time_of_tread_right)
+
+    data = dict( left = [], right = [] )
     frame_count = 0
     # iterate through frames of video
     while True:
@@ -59,24 +61,34 @@ def identify_tread(filepath, filename):
             mpDraw.draw_landmarks(img, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
             display_img(img)
 
-            if frame_count in canidat_frames_at_time_of_tread:
+            if frame_count in canidat_frames_at_time_of_tread_left:
                 print("--------------")
                 key = cv2.waitKey(-1)  # wait until any key is pressed
                 if key == ord('s'):  # save frame
-                    data.append(frame_count)
+                    data["left"].append(frame_count)
                 if key == ord('p'):   # save previous frame
-                    data.append(previous_canidat_frame)
+                    data["left"].append(previous_canidat_frame)
                 # if any other key is pressed no frame gets saved
                 previous_canidat_frame = frame_count
                 print(data)
 
+            if frame_count in canidat_frames_at_time_of_tread_right:
+                print("--------------")
+                key = cv2.waitKey(-1)  # wait until any key is pressed
+                if key == ord('s'):  # save frame
+                    data["right"].append(frame_count)
+                if key == ord('p'):   # save previous frame
+                    data["right"].append(previous_canidat_frame)
+                # if any other key is pressed no frame gets saved
+                previous_canidat_frame = frame_count
+                print(data)
             frame_count+=1
                 
     print(data)
-    new_df = pd.DataFrame(data, index=range(len(data)), columns=[columns])
+    new_df = pd.DataFrame({k:pd.Series(v) for k,v in data.items()}, dtype=pd.Int64Dtype())
     print(new_df)
-    new_df.to_csv(str(filename[:-4])+ "_tread_frames" + ".csv")
-
+    tread_frames_filepath = os.path.join(dir_tread_frames, str(filename[:-4])+ "_tread_frames_laufstil.csv")
+    new_df.to_csv(tread_frames_filepath)
 
 #--------------------------------- main loop ----------------------------------
 
